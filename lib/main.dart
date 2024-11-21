@@ -37,10 +37,29 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   late TabController _tabController;
   final _tabTitles = [R.noteTab, R.collectTab, R.likeTab];
+  final _refreshController = EasyRefreshController(
+    controlFinishLoad: true,
+    controlFinishRefresh: true,
+  );
+  final _expandedHeight = ValueNotifier<double>(R.userProfileHeaderMaxHeight);
 
   @override
   void initState() {
     _tabController = TabController(length: _tabTitles.length, vsync: this,);
+
+    // 添加 header 发生偏移量的监听
+    bool haveAddListener = false;
+    WidgetsBinding.instance.addPersistentFrameCallback((_) {
+      if (!haveAddListener && _refreshController.headerState != null) {
+        haveAddListener = true;
+        _refreshController.headerState?.notifier.addListener(() {
+          print('${_refreshController.headerState?.offset}');
+          final offset = _refreshController.headerState?.offset ?? 0;
+          _expandedHeight.value = R.userProfileHeaderMaxHeight + offset;
+        });
+      }
+    });
+
     super.initState();
   }
 
@@ -49,54 +68,81 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     final topPadding = MediaQuery.of(context).padding.top;
     return Scaffold(
       body: EasyRefresh(
+        isNested: true,
+        controller: _refreshController,
+        header: const ClassicHeader(
+          clamping: true,
+        ),
+        onRefresh: () async {
+          await Future.delayed(const Duration(seconds: 1), (){});
+          _refreshController.finishRefresh();
+          return IndicatorResult.success;
+        },
+        onLoad: () async {
+          await Future.delayed(const Duration(milliseconds: 1500), (){});
+          _refreshController.finishLoad();
+          return IndicatorResult.success;
+        },
         child: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) {
             return [
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: RedBookUserHomeHeaderDelegate(
-                  topPadding: topPadding,
-                  background: Image.asset(
-                    R.backgroundIcon,
-                    fit: BoxFit.fitWidth,
-                    alignment: Alignment.topCenter,
-                    width: double.infinity,
-                  ),
-                  bottom: Container(
-                    alignment: Alignment.centerLeft,
-                    child: TabBar(
-                      controller: _tabController,
-                      labelStyle: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      unselectedLabelStyle: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.normal,
-                      ),
-                      labelColor: R.tabSelectColor,
-                      unselectedLabelColor: R.tabSelectColor,
-                      // 设置 Tab 左对齐
-                      tabAlignment: TabAlignment.start,
-                      // 紧贴布局，设置下面两个属性
-                      isScrollable: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      indicator: const RedBookUnderlineTabIndicator(
-                        borderSide: BorderSide(
-                          width: 2,
-                          color: R.appRedBrand,
+              ValueListenableBuilder(
+                valueListenable: _expandedHeight,
+                builder: (_, double height, child) {
+                  final scale = height / R.userProfileHeaderMaxHeight;
+                  return SliverPersistentHeader(
+                    pinned: true,
+                    delegate: RedBookUserHomeHeaderDelegate(
+                      topPadding: topPadding,
+                      expandedHeight: height,
+                      background: Transform.scale(
+                        scale: scale,
+                        child: Image.asset(
+                          R.backgroundIcon,
+                          fit: BoxFit.fitWidth,
+                          alignment: Alignment.topCenter,
+                          height: R.userProfileHeaderMaxHeight,
+                          width: double.infinity,
                         ),
-                        indicatorWidth: 20,
-                        indicatorBottom: 6,
                       ),
-                      tabs: _tabTitles
-                          .map(
-                            (e) => RedBookTab(text: e),
-                          )
-                          .toList(),
+                      bottom: Container(
+                        alignment: Alignment.centerLeft,
+                        child: TabBar(
+                          controller: _tabController,
+                          labelStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          unselectedLabelStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.normal,
+                          ),
+                          labelColor: R.tabSelectColor,
+                          unselectedLabelColor: R.tabSelectColor,
+                          // 设置 Tab 左对齐
+                          tabAlignment: TabAlignment.start,
+                          // 紧贴布局，设置下面两个属性
+                          isScrollable: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          indicator: const RedBookUnderlineTabIndicator(
+                            borderSide: BorderSide(
+                              width: 2,
+                              color: R.appRedBrand,
+                            ),
+                            isRound: true,
+                            indicatorWidth: 20,
+                            indicatorBottom: 6,
+                          ),
+                          tabs: _tabTitles
+                              .map(
+                                (e) => RedBookTab(text: e),
+                              )
+                              .toList(),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                }
               ),
             ];
           },
@@ -104,9 +150,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             controller: _tabController,
             children: _tabTitles
                 .map(
-                  (e) => Container(
-                    alignment: Alignment.center,
-                    child: Text(e),
+                  (e) => ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemBuilder: (_, index) {
+                      return ListTile(
+                        title: Text('$e, #$index'),
+                      );
+                    },
+                    itemCount: 100,
                   ),
                 )
                 .toList(),
