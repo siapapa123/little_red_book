@@ -25,8 +25,7 @@ class RedBookUserHomeHeaderDelegate extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     final opacity = clampDouble(shrinkOffset / R.appBarOpacityDelta, 0.0, 1.0);
     final offset = max(-shrinkOffset, minExtent - maxExtent);
-    return Container(
-      color: Colors.red,
+    return SizedBox(
       height: maxExtent,
       width: double.infinity,
       child: Stack(
@@ -94,7 +93,7 @@ class RedBookUserHomeHeaderDelegate extends SliverPersistentHeaderDelegate {
             child: Container(
               width: double.infinity,
               height: R.tabBarHeight,
-              alignment: Alignment.center,
+              alignment: Alignment.bottomCenter,
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -119,6 +118,6 @@ class RedBookUserHomeHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
+    return true;
   }
 }

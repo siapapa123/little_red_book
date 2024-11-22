@@ -53,9 +53,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       if (!haveAddListener && _refreshController.headerState != null) {
         haveAddListener = true;
         _refreshController.headerState?.notifier.addListener(() {
-          print('${_refreshController.headerState?.offset}');
           final offset = _refreshController.headerState?.offset ?? 0;
           _expandedHeight.value = R.userProfileHeaderMaxHeight + offset;
+          print('onHeaderState $offset');
         });
       }
     });
@@ -83,84 +83,91 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           _refreshController.finishLoad();
           return IndicatorResult.success;
         },
-        child: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
-              ValueListenableBuilder(
-                valueListenable: _expandedHeight,
-                builder: (_, double height, child) {
-                  final scale = height / R.userProfileHeaderMaxHeight;
-                  return SliverPersistentHeader(
-                    pinned: true,
-                    delegate: RedBookUserHomeHeaderDelegate(
-                      topPadding: topPadding,
-                      expandedHeight: height,
-                      background: Transform.scale(
-                        scale: scale,
-                        child: Image.asset(
-                          R.backgroundIcon,
-                          fit: BoxFit.fitWidth,
-                          alignment: Alignment.topCenter,
-                          height: R.userProfileHeaderMaxHeight,
-                          width: double.infinity,
-                        ),
-                      ),
-                      bottom: Container(
-                        alignment: Alignment.centerLeft,
-                        child: TabBar(
-                          controller: _tabController,
-                          labelStyle: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          unselectedLabelStyle: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.normal,
-                          ),
-                          labelColor: R.tabSelectColor,
-                          unselectedLabelColor: R.tabSelectColor,
-                          // 设置 Tab 左对齐
-                          tabAlignment: TabAlignment.start,
-                          // 紧贴布局，设置下面两个属性
-                          isScrollable: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          indicator: const RedBookUnderlineTabIndicator(
-                            borderSide: BorderSide(
-                              width: 2,
-                              color: R.appRedBrand,
-                            ),
-                            isRound: true,
-                            indicatorWidth: 20,
-                            indicatorBottom: 6,
-                          ),
-                          tabs: _tabTitles
-                              .map(
-                                (e) => RedBookTab(text: e),
-                              )
-                              .toList(),
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              ),
-            ];
+        child: NotificationListener(
+          onNotification: (ScrollNotification scrollInfo) {
+            print('onNotification ${scrollInfo.metrics.pixels}');
+            return true;
           },
-          body: TabBarView(
-            controller: _tabController,
-            children: _tabTitles
-                .map(
-                  (e) => ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemBuilder: (_, index) {
-                      return ListTile(
-                        title: Text('$e, #$index'),
-                      );
-                    },
-                    itemCount: 100,
-                  ),
-                )
-                .toList(),
+          child: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                ValueListenableBuilder(
+                  valueListenable: _expandedHeight,
+                  builder: (_, double height, child) {
+                    // 计算图片的缩放大小
+                    final scale = height / R.userProfileHeaderMaxHeight;
+
+                    return SliverPersistentHeader(
+                      pinned: true,
+                      delegate: RedBookUserHomeHeaderDelegate(
+                        topPadding: topPadding,
+                        expandedHeight: height,
+                        background: Transform.scale(
+                          scale: scale,
+                          child: Image.asset(
+                            R.backgroundIcon,
+                            fit: BoxFit.fitWidth,
+                            alignment: Alignment.topCenter,
+                            width: double.infinity,
+                          ),
+                        ),
+                        bottom: Container(
+                          alignment: Alignment.centerLeft,
+                          child: TabBar(
+                            controller: _tabController,
+                            labelStyle: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            unselectedLabelStyle: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.normal,
+                            ),
+                            labelColor: R.tabSelectColor,
+                            unselectedLabelColor: R.tabSelectColor,
+                            // 设置 Tab 左对齐
+                            tabAlignment: TabAlignment.start,
+                            // 紧贴布局，设置下面两个属性
+                            isScrollable: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            indicator: const RedBookUnderlineTabIndicator(
+                              borderSide: BorderSide(
+                                width: 2,
+                                color: R.appRedBrand,
+                              ),
+                              isRound: true,
+                              indicatorWidth: 20,
+                              indicatorBottom: 6,
+                            ),
+                            tabs: _tabTitles
+                                .map(
+                                  (e) => RedBookTab(text: e),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                ),
+              ];
+            },
+            body: TabBarView(
+              controller: _tabController,
+              children: _tabTitles
+                  .map(
+                    (e) => ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemBuilder: (_, index) {
+                        return ListTile(
+                          title: Text('$e, #$index'),
+                        );
+                      },
+                      itemCount: 100,
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
         ),
       ),
