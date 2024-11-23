@@ -11,6 +11,7 @@ class RedBookUserHomeHeaderDelegate extends SliverPersistentHeaderDelegate {
     this.collapsedHeight = R.appBarHeight,
     this.expandedHeight = R.userProfileHeaderMaxHeight,
     this.background,
+    this.content,
     this.bottom,
   });
 
@@ -18,11 +19,13 @@ class RedBookUserHomeHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double collapsedHeight;
   final double expandedHeight;
   final Widget? background;
+  final Widget? content;
   final Widget? bottom;
 
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
+    print('shrinkOffset = $shrinkOffset');
     final opacity = clampDouble(shrinkOffset / R.appBarOpacityDelta, 0.0, 1.0);
     final offset = max(-shrinkOffset, minExtent - maxExtent);
     return SizedBox(
@@ -54,6 +57,17 @@ class RedBookUserHomeHeaderDelegate extends SliverPersistentHeaderDelegate {
               ),
             ),
           ),
+          // 中间的内容区域
+          if (content != null)
+            Positioned(
+              left: 0,
+              right: 0,
+              top: topPadding +
+                  collapsedHeight +
+                  R.userProfileHeaderContentSpace +
+                  offset,
+              child: content!,
+            ),
           // 顶部 AppBar
           Positioned(
             top: 0,
@@ -68,7 +82,7 @@ class RedBookUserHomeHeaderDelegate extends SliverPersistentHeaderDelegate {
               child: Container(
                 height: collapsedHeight,
                 alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: R.padding12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -76,7 +90,7 @@ class RedBookUserHomeHeaderDelegate extends SliverPersistentHeaderDelegate {
                     Row(
                       children: [
                         Image.asset(R.scanIcon, width: 24, height: 24),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: R.padding8),
                         Image.asset(R.shareIcon, width: 22, height: 22),
                       ],
                     ),

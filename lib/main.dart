@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'R.dart';
 import 'views/red_book_tab.dart';
+import 'views/red_book_user_header_content.dart';
 import 'views/red_book_user_home_header_delegate.dart';
 
 void main() {
@@ -111,16 +112,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                             width: double.infinity,
                           ),
                         ),
+                        content: const RedBookUserHeaderContent(),
                         bottom: Container(
                           alignment: Alignment.centerLeft,
                           child: TabBar(
                             controller: _tabController,
                             labelStyle: const TextStyle(
-                              fontSize: 18,
+                              fontSize: R.fontSize18,
                               fontWeight: FontWeight.w600,
                             ),
                             unselectedLabelStyle: const TextStyle(
-                              fontSize: 18,
+                              fontSize: R.fontSize18,
                               fontWeight: FontWeight.normal,
                             ),
                             labelColor: R.tabSelectColor,

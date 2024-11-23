@@ -7,10 +7,14 @@ class R {
   static const String scanIcon = 'assets/images/scan.png';
   static const String shareIcon = 'assets/images/share.png';
   static const String backgroundIcon = 'assets/images/background.jpg';
+  static const String qrCodeIcon = 'assets/images/qrcode.png';
+  static const String userAvatar = 'assets/images/avatar.jpg';
 
   // Strings
   static const String appName = '小红书';
   static const String userIdName = '小红书号';
+  static const String userId = '969696';
+  static const String userName = '我是siapapa123';
   static const String userDescription = '点击这里，填写简介';
   static const String follow = '关注';
   static const String fans = '粉丝';
@@ -38,6 +42,18 @@ class R {
   static const double appBarOpacityDelta = 120;
   static const double tabBarRadius = 10;
   static const double tabBarHeight = 44;
+  static const double userProfileHeaderContentSpace = 10;
+  static const double padding4 = 4;
+  static const double padding8 = 8;
+  static const double padding12 = 12;
+  static const double padding14 = 14;
+  static const double fontSize10 = 10;
+  static const double fontSize14 = 14;
+  static const double fontSize18 = 18;
+  static const double fontSize20 = 20;
+  static const double size80 = 80;
+  static const double size20 = 20;
+  static const double size12 = 12;
 
   // Colors
   static const Color appBarBackgroundColor = Color(0xFF43433F);
